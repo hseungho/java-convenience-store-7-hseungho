@@ -41,11 +41,11 @@ class ProductRepositoryTest {
     @Test
     void save_given_exists_should_be_pass_and_update() {
         // given
-        Product product = new Product("new product", BigDecimal.valueOf(1000), 10L, null);
+        Product product = new Product(1L, "new product", BigDecimal.valueOf(1000), 10L, null);
         productRepository.save(product);
         // when
         Promotion newPromotion = new Promotion("promotion", 2, 1, LocalDate.now(), LocalDate.now());
-        Product updatedProduct = new Product("new product", BigDecimal.valueOf(20000), 20L, Optional.of(newPromotion));
+        Product updatedProduct = new Product(1L, "new product", BigDecimal.valueOf(20000), 20L, Optional.of(newPromotion));
         Product persistedProduct = productRepository.save(updatedProduct);
         // then
         Assertions.assertEquals(product, persistedProduct);
@@ -73,10 +73,10 @@ class ProductRepositoryTest {
     @Test
     void findById_when_exists_should_be_pass() {
         // given
-        Product product = new Product("product", BigDecimal.valueOf(1000), 10L, null);
+        Product product = new Product(1L, "product", BigDecimal.valueOf(1000), 10L, null);
         productRepository.save(product);
         // when
-        Optional<Product> foundProduct = productRepository.findById("product");
+        Optional<Product> foundProduct = productRepository.findById(1L);
         // then
         Assertions.assertTrue(foundProduct.isPresent());
         Assertions.assertEquals(product, foundProduct.get());
@@ -85,10 +85,10 @@ class ProductRepositoryTest {
     @Test
     void findById_when_not_exists_should_be_pass() {
         // given
-        Product product = new Product("product", BigDecimal.valueOf(1000), 10L, null);
+        Product product = new Product(1L, "product", BigDecimal.valueOf(1000), 10L, null);
         productRepository.save(product);
         // when
-        Optional<Product> notFoundProduct = productRepository.findById("not_exists");
+        Optional<Product> notFoundProduct = productRepository.findById(2L);
         // then
         Assertions.assertFalse(notFoundProduct.isPresent());
         Assertions.assertThrows(NoSuchElementException.class, notFoundProduct::get);

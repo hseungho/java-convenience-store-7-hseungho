@@ -14,9 +14,9 @@ public abstract class AbstractDataSource<T> {
 
     protected abstract String getPath();
 
-    protected abstract boolean isSkipFirstLine();
+    protected abstract boolean isIgnoreColumnHeader();
 
-    protected abstract boolean ignoreIdColumn();
+    protected abstract boolean isPresentIdColumn();
 
     protected abstract T map(String line);
 
@@ -35,7 +35,7 @@ public abstract class AbstractDataSource<T> {
     protected List<T> read() {
         try {
             BufferedReader br = this.getBufferedReader();
-            if (isSkipFirstLine()) {
+            if (isIgnoreColumnHeader()) {
                 br.readLine();
             }
             return br.lines().map(this::map).toList();
@@ -47,7 +47,7 @@ public abstract class AbstractDataSource<T> {
     protected String[] parseToColumns(Class<T> clazz, String line) {
         String[] columns = line.split(",");
         int length = clazz.getDeclaredFields().length;
-        if (ignoreIdColumn()) {
+        if (isPresentIdColumn()) {
             --length;
         }
         if (columns.length != length) {

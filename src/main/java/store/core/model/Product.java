@@ -20,6 +20,14 @@ public class Product {
 
     private Optional<Promotion> promotion;
 
+    public Product(Long id, String name, BigDecimal price, Long quantity, Optional<Promotion> promotion) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+        this.promotion = promotion;
+    }
+
     public Product(String name, BigDecimal price, Long quantity, Optional<Promotion> promotion) {
         this.name = name;
         this.price = price;

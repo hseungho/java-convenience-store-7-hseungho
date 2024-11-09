@@ -3,7 +3,7 @@ package store.core.model.repository;
 import store.commons.data.repository.SimpleRepository;
 import store.core.model.Product;
 
-public class ProductRepository extends SimpleRepository<Product, String> {
+public class ProductRepository extends SimpleRepository<Product, Long> {
 
     private static ProductRepository instance;
 

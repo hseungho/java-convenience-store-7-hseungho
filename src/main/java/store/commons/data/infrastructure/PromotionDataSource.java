@@ -28,12 +28,12 @@ public class PromotionDataSource extends AbstractDataSource<Promotion> {
     }
 
     @Override
-    protected boolean isSkipFirstLine() {
+    protected boolean isIgnoreColumnHeader() {
         return true;
     }
 
     @Override
-    protected boolean ignoreIdColumn() {
+    protected boolean isPresentIdColumn() {
         return false;
     }
 

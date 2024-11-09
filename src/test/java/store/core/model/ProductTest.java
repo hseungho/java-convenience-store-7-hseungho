@@ -32,9 +32,9 @@ class ProductTest {
         Long quantity = 100L;
         Promotion promotion = new Promotion("promotion", 1, 1, LocalDate.now(), LocalDate.now());
         // when
-        Product product1 = new Product("product", price, quantity, Optional.of(promotion));
-        Product product2 = new Product("product", price, quantity, Optional.empty());
-        Product product3 = new Product("other_product", price, quantity, Optional.of(promotion));
+        Product product1 = new Product(1L, "product", price, quantity, Optional.of(promotion));
+        Product product2 = new Product(1L, "product", price, quantity, Optional.empty());
+        Product product3 = new Product(2L, "other_product", price, quantity, Optional.of(promotion));
         // then
         Assertions.assertEquals(product1, product2);
         Assertions.assertNotEquals(product1, product3);

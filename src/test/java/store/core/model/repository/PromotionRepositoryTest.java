@@ -63,6 +63,7 @@ class PromotionRepositoryTest {
         // then
         List<Promotion> persistedPromotions = promotionRepository.findAll();
         Assertions.assertEquals(10, persistedPromotions.size());
+        Assertions.assertEquals(promotions, persistedPromotions);
     }
 
     @Test

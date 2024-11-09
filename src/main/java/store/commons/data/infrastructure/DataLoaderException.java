@@ -1,6 +1,8 @@
-package store.commons.lang;
+package store.commons.data.infrastructure;
 
-public class DataLoaderException extends RuntimeException {
+import store.commons.lang.SystemException;
+
+public class DataLoaderException extends SystemException {
 
     public DataLoaderException(String message) {
         super(message);

@@ -2,9 +2,11 @@ package store.core.model;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import store.commons.data.repository.Id;
 
 public class Promotion {
 
+    @Id
     private final String name;
 
     private final int buy;

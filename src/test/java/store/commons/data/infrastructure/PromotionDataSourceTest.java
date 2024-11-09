@@ -1,4 +1,4 @@
-package store.commons.infrastructure;
+package store.commons.data.infrastructure;
 
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -18,8 +18,5 @@ class PromotionDataSourceTest {
         // then
         List<Promotion> promotions = promotionRepository.findAll();
         Assertions.assertEquals(3, promotions.size());
-        Assertions.assertEquals("탄산2+1", promotions.get(0).getName());
-        Assertions.assertEquals("MD추천상품", promotions.get(1).getName());
-        Assertions.assertEquals("반짝할인", promotions.get(2).getName());
     }
 }

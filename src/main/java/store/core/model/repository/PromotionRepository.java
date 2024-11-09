@@ -1,12 +1,10 @@
 package store.core.model.repository;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import store.commons.data.repository.SimpleRepository;
 import store.core.model.Promotion;
 
-public class PromotionRepository {
+public class PromotionRepository extends SimpleRepository<Promotion, String> {
 
     private static PromotionRepository instance;
 
@@ -17,31 +15,11 @@ public class PromotionRepository {
         return instance;
     }
 
-    private final ConcurrentHashMap<String, Promotion> promotions = new ConcurrentHashMap<>();
-
-    private PromotionRepository() {}
-
-    public Promotion save(Promotion entity) {
-        String id = entity.getName();
-        this.promotions.put(id, entity);
-        return promotions.get(id);
-    }
-
-    public List<Promotion> saveAll(Iterable<Promotion> entities) {
-        entities.forEach(this::save);
-        return new ArrayList<>(promotions.values());
+    private PromotionRepository() {
+        super();
     }
 
     public Optional<Promotion> findByName(String name) {
-        Promotion entity = this.promotions.get(name);
-        return Optional.ofNullable(entity);
-    }
-
-    public List<Promotion> findAll() {
-        return new ArrayList<>(this.promotions.values());
-    }
-
-    public void deleteAll() {
-        this.promotions.clear();
+        return findById(name);
     }
 }

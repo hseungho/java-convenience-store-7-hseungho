@@ -35,6 +35,13 @@ public class Product {
         this.promotion = promotion;
     }
 
+    public Product(String name, BigDecimal price) {
+        this.name = name;
+        this.price = price;
+        this.quantity = 0L;
+        this.promotion = Optional.empty();
+    }
+
     public Long getId() {
         return this.id;
     }
@@ -57,6 +64,10 @@ public class Product {
 
     public boolean hasPromotion() {
         return this.promotion.isPresent();
+    }
+
+    public boolean hasNotPromotion() {
+        return !this.hasPromotion();
     }
 
     public void decreaseQuantity(Long orderQuantity) {

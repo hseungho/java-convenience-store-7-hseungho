@@ -37,7 +37,16 @@ public abstract class SimpleRepository<T, ID extends Comparable<ID>> extends Abs
     }
 
     @Override
+    public boolean existsById(ID id) {
+        return this.storage.containsKey(id);
+    }
+
+    @Override
     public void deleteAll() {
         this.storage.clear();
+    }
+
+    public void deleteById(ID id) {
+        this.storage.remove(id);
     }
 }

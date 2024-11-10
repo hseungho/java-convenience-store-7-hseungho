@@ -45,23 +45,27 @@ public class Promotion {
         return this.endDate;
     }
 
-    public int canApply(Long quantity, LocalDate date) {
-        if (!isActiveAt(date) || quantity >= this.buy) {
+    /**
+     * 프로모션 적용이 가능한 상품에 대해 고객이 해당 수량만큼 가져오지 않았을 경우,
+     * 프로모션의 증정 수량을 반환합니다.
+     */
+    public int getApplicableQuantity(Long orderQuantity, LocalDate date) {
+        if (isInactiveAt(date) || orderQuantity > this.buy) {
             return -1;
         }
-        return (int) (this.buy - quantity);
+        return this.get;
     }
 
     public Long getPromotionQuantity(Long quantity, LocalDate date) {
-        if (!isActiveAt(date)) {
+        if (isInactiveAt(date)) {
             return -1L;
         }
         return quantity / this.buy * this.get;
     }
 
-    private boolean isActiveAt(LocalDate date) {
-        return (this.startDate.isBefore(date) || this.startDate.isEqual(date)) &&
-                (this.endDate.isAfter(date) || this.endDate.isEqual(date));
+    private boolean isInactiveAt(LocalDate date) {
+        return (!this.startDate.isBefore(date) && !this.startDate.isEqual(date)) ||
+                (!this.endDate.isAfter(date) && !this.endDate.isEqual(date));
     }
 
     @Override

@@ -1,8 +1,6 @@
 package store.core.model;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import store.commons.data.repository.Id;
 
 public class ProductWindow {
@@ -10,25 +8,26 @@ public class ProductWindow {
     @Id
     private final String name;
 
-    private final List<Product> products;
+    private final Product product;
 
-    public ProductWindow(String name, List<Product> products) {
+    private final Product promotionProduct;
+
+    public ProductWindow(String name, Product product, Product promotionProduct) {
         this.name = name;
-        this.products = products;
+        this.product = product;
+        this.promotionProduct = promotionProduct;
     }
 
     public String getName() {
         return this.name;
     }
 
-    public List<Product> getProducts() {
-        return this.products;
+    public Product getProduct() {
+        return this.product;
     }
 
-    public Optional<Product> findPromotionProduct() {
-        return this.getProducts().stream()
-                .filter(Product::hasPromotion)
-                .findFirst();
+    public Product getPromotionProduct() {
+        return this.promotionProduct;
     }
 
     @Override

@@ -2,7 +2,6 @@ package store.core.controller;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.util.List;
-import java.util.Optional;
 import store.core.dto.OrderSheetDto;
 import store.core.dto.OrderSheetDto.OrderSheetItemDto;
 import store.core.dto.ProductDto;
@@ -40,17 +39,16 @@ public class OrderController {
         productListOutputView.display(productDtos);
 
         OrderSheetDto orderSheet = orderSheetInputView.displayWithInput("구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
-        System.out.println(orderSheet);
 
         for (OrderSheetItemDto orderSheetItem : orderSheet.items()) {
             ProductWindow productWindow = productWindowRepository.findByName(orderSheetItem.name())
                     .orElseThrow(IllegalArgumentException::new);
-            Optional<Product> promotionProduct = productWindow.findPromotionProduct();
-            if (promotionProduct.isEmpty() || promotionProduct.get().getPromotion().isEmpty()) {
+            Product promotionProduct = productWindow.getPromotionProduct();
+            if (promotionProduct == null || promotionProduct.getPromotion().isEmpty()) {
                 continue;
             }
-            Promotion promotion = promotionProduct.get().getPromotion().get();
-            int promotionApplyQuantity = promotion.canApply(orderSheetItem.quantity(), DateTimes.now().toLocalDate());
+            Promotion promotion = promotionProduct.getPromotion().get();
+            int promotionApplyQuantity = promotion.getApplicableQuantity(orderSheetItem.quantity(), DateTimes.now().toLocalDate());
             if (promotionApplyQuantity < 0) {
                 continue;
             }

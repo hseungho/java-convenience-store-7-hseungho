@@ -13,6 +13,10 @@ public interface Repository<T, ID extends Comparable<ID>> {
 
     Optional<T> findById(ID id);
 
+    boolean existsById(ID id);
+
     void deleteAll();
+
+    void deleteById(ID id);
 
 }

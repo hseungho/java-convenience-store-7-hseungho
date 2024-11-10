@@ -7,6 +7,8 @@ public abstract class AbstractRepository<T, ID extends Comparable<ID>> implement
 
     protected final ConcurrentHashMap<ID, T> storage;
 
+    private static Long generateValue = 0L;
+
     protected AbstractRepository() {
         this.storage = new ConcurrentHashMap<>();
     }
@@ -57,6 +59,8 @@ public abstract class AbstractRepository<T, ID extends Comparable<ID>> implement
     }
 
     private Long generateId() {
-        return (long) this.storage.size() + 1;
+        synchronized (generateValue) {
+            return ++generateValue;
+        }
     }
 }

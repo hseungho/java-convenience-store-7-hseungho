@@ -33,8 +33,9 @@ public class ProductDataSource extends AbstractDataSource<Product> {
     @Override
     public void initialize() {
         List<Product> data = this.read();
-        this.productRepository.saveAll(data);
-        groupByProductName(this.productRepository.findAll());
+        saveProducts(data);
+        List<ProductWindow> windows = groupByProductName(this.productRepository.findAll());
+        this.productWindowRepository.saveAll(windows);
     }
 
     @Override
@@ -75,14 +76,44 @@ public class ProductDataSource extends AbstractDataSource<Product> {
         }
     }
 
-    private void groupByProductName(List<Product> allProducts) {
+    private void saveProducts(List<Product> products) {
+        for (Product product : products) {
+            this.productRepository.save(product);
+            if (!this.productRepository.existsByNameAndPromotionIsNull(product.getName())) {
+                this.productRepository.save(new Product(product.getName(), product.getPrice()));
+            }
+            if (this.productRepository.countByName(product.getName()) > 2) {
+                this.productRepository.deleteByNameAndPrice(product.getName(), 0L);
+            }
+        }
+    }
+
+    private List<ProductWindow> groupByProductName(List<Product> allProducts) {
         Map<String, List<Product>> map = allProducts.stream()
                 .collect(Collectors.groupingBy(Product::getName));
-        List<ProductWindow> windows = map.entrySet().stream().map(entry -> {
+
+        return map.entrySet().stream().map(entry -> {
             String name = entry.getKey();
             List<Product> products = entry.getValue();
-            return new ProductWindow(name, products);
+            Product product = findHasNotPromotion(products);
+            Product promotionProduct = findHasPromotion(products);
+            return new ProductWindow(name, product, promotionProduct);
         }).toList();
-        this.productWindowRepository.saveAll(windows);
+    }
+
+    private Product findHasNotPromotion(List<Product> products) {
+        List<Product> hasNotPromotions = products.stream().filter(Product::hasNotPromotion).toList();
+        if (hasNotPromotions.isEmpty()) {
+            return null;
+        }
+        return hasNotPromotions.getFirst();
+    }
+
+    private Product findHasPromotion(List<Product> products) {
+        List<Product> hasPromotions = products.stream().filter(Product::hasPromotion).toList();
+        if (hasPromotions.isEmpty()) {
+            return null;
+        }
+        return hasPromotions.getFirst();
     }
 }

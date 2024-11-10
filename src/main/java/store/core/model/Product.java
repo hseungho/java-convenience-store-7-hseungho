@@ -55,6 +55,17 @@ public class Product {
         return this.promotion;
     }
 
+    public boolean hasPromotion() {
+        return this.promotion.isPresent();
+    }
+
+    public void decreaseQuantity(Long orderQuantity) {
+        if (orderQuantity > this.quantity) {
+            throw new IllegalArgumentException("[ERROR] 재고가 부족합니다.");
+        }
+        this.quantity -= orderQuantity;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

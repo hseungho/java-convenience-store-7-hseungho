@@ -40,4 +40,43 @@ class ProductTest {
         Assertions.assertNotEquals(product1, product3);
         Assertions.assertNotEquals(product2, product3);
     }
+
+    @Test
+    void hasPromotion_should_be_pass() {
+        // given
+        BigDecimal price = BigDecimal.valueOf(10000);
+        Long quantity = 100L;
+        Promotion promotion = new Promotion("promotion", 1, 1, LocalDate.now(), LocalDate.now());
+        Product productHasPromotion = new Product("product", price, quantity, Optional.of(promotion));
+        Product productHasNotPromotion = new Product("other_product", price, quantity, Optional.empty());
+        // when
+        boolean hasPromotion = productHasPromotion.hasPromotion();
+        boolean hasNotPromotion = productHasNotPromotion.hasPromotion();
+        // then
+        Assertions.assertTrue(hasPromotion);
+        Assertions.assertFalse(hasNotPromotion);
+    }
+
+    @Test
+    void decreaseQuantity_should_be_pass() {
+        // given
+        BigDecimal price = BigDecimal.valueOf(10000);
+        Long quantity = 10L;
+        Product product = new Product(1L, "product", price, quantity, Optional.empty());
+        // when
+        product.decreaseQuantity(10L);
+        // then
+        Assertions.assertEquals(0L, product.getQuantity());
+    }
+
+    @Test
+    void decreaseQuantity_when_exceed_quantity_should_be_fail() {
+        // given
+        BigDecimal price = BigDecimal.valueOf(10000);
+        Long quantity = 10L;
+        Product product = new Product(1L, "product", price, quantity, Optional.empty());
+        // when
+        // then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> product.decreaseQuantity(11L));
+    }
 }

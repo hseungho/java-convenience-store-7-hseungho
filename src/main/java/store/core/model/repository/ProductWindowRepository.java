@@ -1,5 +1,6 @@
 package store.core.model.repository;
 
+import java.util.Optional;
 import store.commons.data.repository.SimpleRepository;
 import store.core.model.ProductWindow;
 
@@ -16,5 +17,9 @@ public class ProductWindowRepository extends SimpleRepository<ProductWindow, Str
 
     private ProductWindowRepository() {
         super();
+    }
+
+    public Optional<ProductWindow> findByName(String id) {
+        return findById(id);
     }
 }

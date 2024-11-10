@@ -45,6 +45,13 @@ public class Promotion {
         return this.endDate;
     }
 
+    public int canApply(Long quantity, LocalDate date) {
+        if (!isActiveAt(date) || quantity >= this.buy) {
+            return -1;
+        }
+        return (int) (this.buy - quantity);
+    }
+
     public Long getPromotionQuantity(Long quantity, LocalDate date) {
         if (!isActiveAt(date)) {
             return -1L;

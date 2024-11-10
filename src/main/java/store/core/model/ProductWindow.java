@@ -2,6 +2,7 @@ package store.core.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import store.commons.data.repository.Id;
 
 public class ProductWindow {
@@ -22,6 +23,12 @@ public class ProductWindow {
 
     public List<Product> getProducts() {
         return this.products;
+    }
+
+    public Optional<Product> findPromotionProduct() {
+        return this.getProducts().stream()
+                .filter(Product::hasPromotion)
+                .findFirst();
     }
 
     @Override

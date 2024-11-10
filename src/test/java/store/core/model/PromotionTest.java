@@ -36,4 +36,29 @@ class PromotionTest {
         Assertions.assertNotEquals(promotion1, promotion3);
         Assertions.assertNotEquals(promotion2, promotion3);
     }
+
+    @Test
+    void getPromotionQuantity_should_be_pass() {
+        // given
+        Promotion promotion = new Promotion("promotion", 2, 1, LocalDate.of(2024, 11, 1), LocalDate.of(2024, 11, 30));
+        // when
+        Long quantity = 10L;
+        LocalDate date = LocalDate.of(2024, 11, 15);
+        Long promotionQuantity = promotion.getPromotionQuantity(quantity, date);
+        // then
+        Assertions.assertEquals(5L, promotionQuantity);
+    }
+    
+    @Test
+    void getPromotionQuantity_when_not_between_start_and_end_should_return_negative_one() {
+        // given
+        Promotion promotion = new Promotion("promotion", 2, 1, LocalDate.of(2024, 11, 1), LocalDate.of(2024, 11, 30));
+        // when
+        Long quantity = 10L;
+        LocalDate date = LocalDate.of(2024, 12, 1);
+        Long promotionQuantity = promotion.getPromotionQuantity(quantity, date);
+        // then
+        Assertions.assertTrue(promotionQuantity < 0);
+        Assertions.assertEquals(-1, promotionQuantity);
+    }
 }

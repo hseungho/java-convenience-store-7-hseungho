@@ -45,6 +45,18 @@ public class Promotion {
         return this.endDate;
     }
 
+    public Long getPromotionQuantity(Long quantity, LocalDate date) {
+        if (!isActiveAt(date)) {
+            return -1L;
+        }
+        return quantity / this.buy * this.get;
+    }
+
+    private boolean isActiveAt(LocalDate date) {
+        return (this.startDate.isBefore(date) || this.startDate.isEqual(date)) &&
+                (this.endDate.isAfter(date) || this.endDate.isEqual(date));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

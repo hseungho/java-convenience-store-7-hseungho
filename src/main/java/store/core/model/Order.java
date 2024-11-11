@@ -14,10 +14,6 @@ public class Order {
 
     private boolean isApplyMembership;
 
-    private Payment payment;
-
-    private Receipt receipt;
-
     public Order(LocalDate orderDate) {
         this.items = new ArrayList<>();
         this.promotionItems = new ArrayList<>();
@@ -37,15 +33,16 @@ public class Order {
         return this.orderDate;
     }
 
+    public boolean isApplyMembership() {
+        return this.isApplyMembership;
+    }
+
     public Payment getPayment() {
-        if (this.payment == null) {
-            this.payment = new Payment(this);
-        }
-        return this.payment;
+        return new Payment(this);
     }
 
     public Receipt getReceipt() {
-        return this.receipt;
+        return new Receipt(this.items, this.promotionItems, getPayment());
     }
 
     public void addItem(ProductWindow productWindow, Long quantity) {
@@ -86,8 +83,8 @@ public class Order {
                 "items=" + items +
                 ", promotionItems=" + promotionItems +
                 ", orderDate=" + orderDate +
-                ", payment=" + payment +
-                ", receipt=" + receipt +
+                ", payment=" + getPayment() +
+                ", receipt=" + getReceipt() +
                 '}';
     }
 }

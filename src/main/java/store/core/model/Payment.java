@@ -11,7 +11,9 @@ public class Payment {
 
     private final BigDecimal membershipDiscountAmount;
 
-    public Payment(BigDecimal totalAmount, BigDecimal promotionDiscountAmount, BigDecimal membershipDiscountAmount) {
+    public Payment(BigDecimal totalAmount,
+                   BigDecimal promotionDiscountAmount,
+                   BigDecimal membershipDiscountAmount) {
         this.totalAmount = totalAmount;
         this.promotionDiscountAmount = promotionDiscountAmount;
         this.membershipDiscountAmount = membershipDiscountAmount;
@@ -28,11 +30,15 @@ public class Payment {
                 .filter(OrderItem::isPromotion)
                 .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.membershipDiscountAmount = totalAmount
+        BigDecimal membershipDiscountAmount = BigDecimal.ZERO;
+        if (order.isApplyMembership()) {
+            membershipDiscountAmount = totalAmount
                 .subtract(promotionDiscountAmount)
                 .multiply(BigDecimal.valueOf(0.3))
                 .setScale(0, RoundingMode.DOWN)
                 .min(BigDecimal.valueOf(8000));
+        }
+        this.membershipDiscountAmount = membershipDiscountAmount;
     }
 
     public BigDecimal getTotalAmount() {

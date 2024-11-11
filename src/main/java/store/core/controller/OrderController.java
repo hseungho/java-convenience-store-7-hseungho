@@ -7,13 +7,16 @@ import java.util.List;
 import store.core.dto.OrderSheetDto;
 import store.core.dto.OrderSheetDto.OrderSheetItemDto;
 import store.core.dto.ProductDto;
+import store.core.dto.ReceiptDto;
 import store.core.model.Order;
 import store.core.model.Product;
 import store.core.model.ProductWindow;
+import store.core.model.Receipt;
 import store.core.model.repository.ProductRepository;
 import store.core.model.repository.ProductWindowRepository;
 import store.core.view.OrderSheetInputView;
 import store.core.view.ProductListOutputView;
+import store.core.view.ReceiptOutputView;
 import store.core.view.YesOrNoInputView;
 
 public class OrderController {
@@ -24,6 +27,8 @@ public class OrderController {
 
     private final YesOrNoInputView yesOrNoInputView;
 
+    private final ReceiptOutputView receiptOutputView;
+
     private final ProductRepository productRepository;
 
     private final ProductWindowRepository productWindowRepository;
@@ -31,11 +36,13 @@ public class OrderController {
     public OrderController(ProductListOutputView productListOutputView,
                            OrderSheetInputView orderSheetInputView,
                            YesOrNoInputView yesOrNoInputView,
+                           ReceiptOutputView receiptOutputView,
                            ProductRepository productRepository,
                            ProductWindowRepository productWindowRepository) {
         this.productListOutputView = productListOutputView;
         this.orderSheetInputView = orderSheetInputView;
         this.yesOrNoInputView = yesOrNoInputView;
+        this.receiptOutputView = receiptOutputView;
         this.productRepository = productRepository;
         this.productWindowRepository = productWindowRepository;
     }
@@ -75,7 +82,6 @@ public class OrderController {
 
             order.addItem(productWindow, orderQuantity);
 
-
             updatedProductWindows.add(productWindow);
         }
 
@@ -86,9 +92,9 @@ public class OrderController {
 
         this.productWindowRepository.saveAll(updatedProductWindows);
 
-        System.out.println();
-        System.out.println(order);
-        System.out.println(order.getPayment());
+        Receipt receipt = order.getReceipt();
+        ReceiptDto receiptDto = ReceiptDto.modelOf(receipt);
+        receiptOutputView.display(receiptDto);
 
         List<ProductDto> afters = this.productRepository.findAll().stream().map(ProductDto::modelOf).toList();
         productListOutputView.display(afters);

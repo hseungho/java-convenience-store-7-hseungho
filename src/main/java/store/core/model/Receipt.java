@@ -16,6 +16,18 @@ public class Receipt {
         this.payment = payment;
     }
 
+    public List<OrderItem> getPurchasedItems() {
+        return this.purchasedItems;
+    }
+
+    public List<OrderItem> getPromotionItems() {
+        return this.promotionItems;
+    }
+
+    public Payment getPayment() {
+        return this.payment;
+    }
+
     @Override
     public String toString() {
         return "Receipt{" +

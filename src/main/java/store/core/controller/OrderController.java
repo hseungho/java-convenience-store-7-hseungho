@@ -1,9 +1,10 @@
 package store.core.controller;
 
 import camp.nextstep.edu.missionutils.DateTimes;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import store.commons.util.Retry;
 import store.core.dto.OrderSheetDto;
 import store.core.dto.OrderSheetDto.OrderSheetItemDto;
 import store.core.dto.ProductDto;
@@ -48,55 +49,95 @@ public class OrderController {
     }
 
     public void run() {
-        List<Product> products = productRepository.findAll();
-        List<ProductDto> productDtos = products.stream().map(ProductDto::modelOf).toList();
-        productListOutputView.display(productDtos);
+        boolean isRestart;
+        do {
+            OrderSheetDto orderSheet = displayProductListAndInputOrderSheet();
+            Order order = new Order(DateTimes.now().toLocalDate());
+            if (processOrder(orderSheet, order)) break;
+            displayReceipt(order);
+            isRestart = choiceRestartOrder();
+        } while (!isRestart);
+    }
 
-        OrderSheetDto orderSheet = orderSheetInputView.displayWithInput("구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
-
-        LocalDate date = DateTimes.now().toLocalDate();
-        Order order = new Order(date);
-
+    private boolean processOrder(OrderSheetDto orderSheet, Order order) {
         List<ProductWindow> updatedProductWindows = new ArrayList<>();
+        if (addOrderItems(orderSheet, order, updatedProductWindows)) return true;
+        choiceApplyMembershipDiscount(order);
+        this.productWindowRepository.saveAll(updatedProductWindows);
+        return false;
+    }
+
+    private boolean addOrderItems(OrderSheetDto orderSheet, Order order, List<ProductWindow> updatedProductWindows) {
         for (OrderSheetItemDto orderSheetItem : orderSheet.items()) {
             String orderProductName = orderSheetItem.name();
             Long orderQuantity = orderSheetItem.quantity();
-            ProductWindow productWindow = productWindowRepository.findByName(orderProductName)
-                    .orElseThrow(() -> new IllegalArgumentException("[ERROR] 해당 상품이 존재하지 않습니다: " + orderProductName));
-
-            Long applicablePromotionQuantity = productWindow.getRequiredPromotionQuantityIfApplicable(orderQuantity, order.getOrderDate());
-            if (applicablePromotionQuantity > 0) {
-                boolean isApplicablePromotion = yesOrNoInputView.displayWithInput("현재 " + orderProductName + "은(는) " + applicablePromotionQuantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
-                if (isApplicablePromotion) {
-                    orderQuantity += applicablePromotionQuantity;
-                }
-            }
-
-            Long insufficientQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(orderQuantity, order.getOrderDate());
-            if (insufficientQuantity > 0) {
-                boolean applyPromotion = yesOrNoInputView.displayWithInput("현재 " + orderProductName + " " + insufficientQuantity + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
-                if (!applyPromotion) {
-                    return;
-                }
-            }
-
+            ProductWindow productWindow = productWindowRepository.findByName(orderProductName).orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
+            orderQuantity = getApplicablePromotionQuantityIfApplicable(productWindow, orderQuantity, order, orderProductName);
+            if (checkInsufficientPromotionQuantityIfExceed(productWindow, orderQuantity, order, orderProductName)) return true;
             order.addItem(productWindow, orderQuantity);
-
             updatedProductWindows.add(productWindow);
         }
+        return false;
+    }
 
-        boolean isApplyMembershipDiscount = yesOrNoInputView.displayWithInput("멤버십 할인을 받으시겠습니까? (Y/N)");
-        if (isApplyMembershipDiscount) {
-            order.applyMembership();
+    private OrderSheetDto displayProductListAndInputOrderSheet() {
+        List<Product> products = this.productRepository.findAll();
+        List<ProductDto> productDtos = products.stream().map(ProductDto::modelOf).toList();
+        this.productListOutputView.display(productDtos);
+
+        String content = "구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])";
+        return orderSheetInputView.displayWithInput(content);
+    }
+
+    private Long getApplicablePromotionQuantityIfApplicable(ProductWindow productWindow, Long orderQuantity, Order order, String orderProductName) {
+        AtomicLong atomicOrderQuantity = new AtomicLong(orderQuantity);
+        Long applicablePromotionQuantity = productWindow.getRequiredPromotionQuantityIfApplicable(orderQuantity, order.getOrderDate());
+        if (applicablePromotionQuantity > 0) {
+            orderQuantity = Retry.retry(5, () -> {
+                String content = "현재 " + orderProductName + "은(는) " + applicablePromotionQuantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)";
+                boolean isApplicablePromotion = yesOrNoInputView.displayWithInput(content);
+                if (isApplicablePromotion) {
+                    atomicOrderQuantity.addAndGet(applicablePromotionQuantity);
+                }
+                return atomicOrderQuantity.get();
+            });
         }
+        return orderQuantity;
+    }
 
-        this.productWindowRepository.saveAll(updatedProductWindows);
+    private boolean checkInsufficientPromotionQuantityIfExceed(ProductWindow productWindow, Long orderQuantity, Order order, String orderProductName) {
+        boolean result = false;
+        Long insufficientQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(orderQuantity, order.getOrderDate());
+        if (insufficientQuantity > 0) {
+            result = Retry.retry(5, () -> {
+                String content = "현재 " + orderProductName + " " + insufficientQuantity + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)";
+                boolean applyPromotion = yesOrNoInputView.displayWithInput(content);
+                return !applyPromotion;
+            });
+        }
+        return result;
+    }
 
+    private void choiceApplyMembershipDiscount(Order order) {
+        Retry.retry(5, () -> {
+            String content = "멤버십 할인을 받으시겠습니까? (Y/N)";
+            boolean isApplyMembershipDiscount = yesOrNoInputView.displayWithInput(content);
+            if (isApplyMembershipDiscount) {
+                order.applyMembership();
+            }
+            return order;
+        });
+    }
+
+    private void displayReceipt(Order order) {
         Receipt receipt = order.getReceipt();
         ReceiptDto receiptDto = ReceiptDto.modelOf(receipt);
         receiptOutputView.display(receiptDto);
+    }
 
-        List<ProductDto> afters = this.productRepository.findAll().stream().map(ProductDto::modelOf).toList();
-        productListOutputView.display(afters);
+    private Boolean choiceRestartOrder() {
+        String content = "감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)";
+        boolean isRestartOrder = yesOrNoInputView.displayWithInput(content);
+        return !isRestartOrder;
     }
 }

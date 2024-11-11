@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import store.commons.util.Retry;
+import store.commons.util.Runner;
 import store.core.dto.OrderSheetDto;
 import store.core.dto.OrderSheetDto.OrderSheetItemDto;
 import store.core.dto.ProductDto;
@@ -51,11 +52,15 @@ public class OrderController {
     public void run() {
         boolean isRestart;
         do {
-            OrderSheetDto orderSheet = displayProductListAndInputOrderSheet();
-            Order order = new Order(DateTimes.now().toLocalDate());
-            if (processOrder(orderSheet, order)) break;
-            displayReceipt(order);
-            isRestart = choiceRestartOrder();
+            Object result;
+            result = Runner.runCatching(() -> {
+                OrderSheetDto orderSheet = displayProductListAndInputOrderSheet();
+                Order order = new Order(DateTimes.now().toLocalDate());
+                if (processOrder(orderSheet, order)) return true;
+                displayReceipt(order);
+                return choiceRestartOrder();
+            });
+            isRestart = result != null;
         } while (!isRestart);
     }
 

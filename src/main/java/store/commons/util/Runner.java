@@ -15,6 +15,7 @@ public class Runner {
             throw e;
         } catch (Throwable t) {
             Logger.error(t.getMessage());
+            System.out.println();
             return null;
         }
     }

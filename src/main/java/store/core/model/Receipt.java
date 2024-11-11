@@ -27,13 +27,4 @@ public class Receipt {
     public Payment getPayment() {
         return this.payment;
     }
-
-    @Override
-    public String toString() {
-        return "Receipt{" +
-                "purchasedItems=" + purchasedItems +
-                ", promotionItems=" + promotionItems +
-                ", payment=" + payment +
-                '}';
-    }
 }

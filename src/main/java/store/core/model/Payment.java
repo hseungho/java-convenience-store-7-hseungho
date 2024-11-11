@@ -58,14 +58,4 @@ public class Payment {
                 .subtract(this.promotionDiscountAmount)
                 .subtract(this.membershipDiscountAmount);
     }
-
-    @Override
-    public String toString() {
-        return "Payment{" +
-                "totalAmount=" + getTotalAmount() +
-                ", promotionDiscountAmount=" + getPromotionDiscountAmount() +
-                ", membershipDiscountAmount=" + getMembershipDiscountAmount() +
-                ", paidAmount=" + geyPaidAmount() +
-                '}';
-    }
 }

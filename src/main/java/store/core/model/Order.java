@@ -76,15 +76,4 @@ public class Order {
     public void applyMembership() {
         this.isApplyMembership = true;
     }
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "items=" + items +
-                ", promotionItems=" + promotionItems +
-                ", orderDate=" + orderDate +
-                ", payment=" + getPayment() +
-                ", receipt=" + getReceipt() +
-                '}';
-    }
 }

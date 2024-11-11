@@ -25,13 +25,4 @@ public class OrderItem {
     public boolean isPromotion() {
         return this.isPromotion;
     }
-
-    @Override
-    public String toString() {
-        return "OrderItem{" +
-                "product=" + product.getName() +
-                ", quantity=" + quantity +
-                ", isPromotion=" + isPromotion +
-                '}';
-    }
 }

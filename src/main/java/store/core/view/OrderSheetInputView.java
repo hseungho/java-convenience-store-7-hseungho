@@ -1,8 +1,8 @@
 package store.core.view;
 
-import camp.nextstep.edu.missionutils.Console;
 import java.util.Arrays;
 import java.util.List;
+import store.commons.util.Command;
 import store.core.dto.OrderSheetDto;
 import store.core.dto.OrderSheetDto.OrderSheetItemDto;
 
@@ -16,7 +16,7 @@ public class OrderSheetInputView implements InputView<String, OrderSheetDto> {
     @Override
     public OrderSheetDto displayWithInput(String content) {
         display(content);
-        String read = Console.readLine();
+        String read = Command.read();
         List<String> inputItems = parseToItems(read);
         List<OrderSheetItemDto> items = parseToEachItem(inputItems);
         return new OrderSheetDto(items);

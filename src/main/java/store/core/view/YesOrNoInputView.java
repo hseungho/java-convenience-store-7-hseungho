@@ -1,6 +1,6 @@
 package store.core.view;
 
-import camp.nextstep.edu.missionutils.Console;
+import store.commons.util.Command;
 
 public class YesOrNoInputView implements InputView<String, Boolean> {
 
@@ -11,7 +11,7 @@ public class YesOrNoInputView implements InputView<String, Boolean> {
     @Override
     public Boolean displayWithInput(String content) {
         this.display("\n" + content);
-        String read = Console.readLine();
+        String read = Command.read();
         validateYesOrNo(read);
         return YES.equalsIgnoreCase(read);
     }

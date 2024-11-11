@@ -53,7 +53,7 @@ public class OrderController {
         boolean isRestart;
         do {
             Object result;
-            result = Runner.runCatching(() -> {
+            result = Runner.run(() -> {
                 OrderSheetDto orderSheet = displayProductListAndInputOrderSheet();
                 Order order = new Order(DateTimes.now().toLocalDate());
                 if (processOrder(orderSheet, order)) return true;

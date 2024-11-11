@@ -14,7 +14,7 @@ public class Retry {
             if (++count > repeat) {
                 throw new InputOverFlowException();
             }
-            result = Runner.runCatching(supplier);
+            result = Runner.run(supplier);
         } while (result == null);
         return result;
     }

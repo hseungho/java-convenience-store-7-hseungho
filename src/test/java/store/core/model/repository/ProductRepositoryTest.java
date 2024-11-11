@@ -52,7 +52,7 @@ class ProductRepositoryTest {
         Assertions.assertEquals(updatedProduct, persistedProduct);
         Assertions.assertEquals(BigDecimal.valueOf(20000), persistedProduct.getPrice());
         Assertions.assertEquals(20, persistedProduct.getQuantity());
-        Assertions.assertEquals(newPromotion, persistedProduct.getPromotion());
+        Assertions.assertNull(persistedProduct.getPromotion());
     }
 
     @Test

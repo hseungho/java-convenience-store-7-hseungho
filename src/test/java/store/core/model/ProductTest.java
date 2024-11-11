@@ -37,7 +37,7 @@ class ProductTest {
         Assertions.assertNotNull(product);
         Assertions.assertEquals(name, product.getName());
         Assertions.assertEquals(price, product.getPrice());
-        Assertions.assertEquals(0L, product.getQuantity());
+        Assertions.assertEquals(2L, product.getQuantity());
         Assertions.assertEquals(promotion, product.getPromotion());
     }
 

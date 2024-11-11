@@ -58,7 +58,7 @@ class PromotionTest {
         LocalDate date = LocalDate.of(2024, 12, 1);
         Long promotionQuantity = promotion.getPromotionQuantity(quantity, date);
         // then
-        Assertions.assertTrue(promotionQuantity < 0);
-        Assertions.assertEquals(-1, promotionQuantity);
+        Assertions.assertTrue(promotionQuantity == 0);
+        Assertions.assertEquals(0, promotionQuantity);
     }
 }

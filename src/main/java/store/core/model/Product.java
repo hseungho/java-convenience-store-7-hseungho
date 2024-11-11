@@ -75,7 +75,7 @@ public class Product {
 
     public void decreaseQuantity(Long orderQuantity) {
         if (orderQuantity > this.getQuantity()) {
-            throw new IllegalArgumentException("[ERROR] 재고가 부족합니다.");
+            throw new IllegalArgumentException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
         }
         this.quantity -= orderQuantity;
     }

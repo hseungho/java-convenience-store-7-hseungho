@@ -28,13 +28,17 @@ public class ProductWindowRepository extends SimpleRepository<ProductWindow, Str
         if (product == null || promotionProduct == null) {
             return super.save(entity);
         }
-        if (promotionProduct.getQuantity() < promotionProduct.getPromotion().getPromotionSets()) {
+        if (product.getId() != null &&
+                promotionProduct.getId() != null &&
+                !entity.isNew() &&
+                promotionProduct.getQuantity() < promotionProduct.getPromotion().getPromotionSets()) {
             Long promotionQuantity = promotionProduct.getQuantity();
             product.increaseQuantity(promotionQuantity);
             promotionProduct.decreaseQuantity(promotionQuantity);
             productRepository.save(product);
             productRepository.save(promotionProduct);
         }
+        entity.setIsNew(false);
         return super.save(entity);
     }
 

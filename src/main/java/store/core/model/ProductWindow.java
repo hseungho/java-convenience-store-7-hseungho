@@ -13,6 +13,8 @@ public class ProductWindow {
 
     private final Product promotionProduct;
 
+    private boolean isNew = true;
+
     public ProductWindow(String name, Product product, Product promotionProduct) {
         this.name = name;
         this.product = product;
@@ -29,6 +31,14 @@ public class ProductWindow {
 
     public Product getPromotionProduct() {
         return this.promotionProduct;
+    }
+
+    public boolean isNew() {
+        return this.isNew;
+    }
+
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
     }
 
     public Long getRequiredPromotionQuantityIfApplicable(Long orderQuantity, LocalDate orderDate) {

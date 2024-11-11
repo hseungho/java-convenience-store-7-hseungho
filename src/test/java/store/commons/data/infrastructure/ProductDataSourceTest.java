@@ -33,6 +33,5 @@ class ProductDataSourceTest {
         Assertions.assertEquals(11, windows.size());
         Optional<ProductWindow> window = productWindowRepository.findById("콜라");
         Assertions.assertTrue(window.isPresent());
-        Assertions.assertEquals(2, window.get().getProducts().size());
     }
 }

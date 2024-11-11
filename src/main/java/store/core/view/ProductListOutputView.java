@@ -28,9 +28,17 @@ public class ProductListOutputView implements OutputView<List<ProductDto>> {
             builder.append("- ");
             builder.append(product.name() + " ");
             builder.append(decimalFormat.format(product.price()) + "원 ");
-            builder.append(product.quantity()+"개 ");
+            buildQuantity(builder, product.quantity());
             builder.append(product.promotionName() + "\n");
         }
         System.out.println(builder);
+    }
+
+    private void buildQuantity(StringBuilder builder, Long quantity) {
+        if (quantity == 0L) {
+            builder.append("재고 없음 ");
+            return;
+        }
+        builder.append(quantity + "개 ");
     }
 }

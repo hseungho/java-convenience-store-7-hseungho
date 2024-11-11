@@ -44,15 +44,15 @@ class ProductRepositoryTest {
         Product product = new Product(1L, "new product", BigDecimal.valueOf(1000), 10L, null);
         productRepository.save(product);
         // when
-        Promotion newPromotion = new Promotion("promotion", 2, 1, LocalDate.now(), LocalDate.now());
-        Product updatedProduct = new Product(1L, "new product", BigDecimal.valueOf(20000), 20L, Optional.of(newPromotion));
+        Promotion newPromotion = new Promotion("promotion", 2L, 1L, LocalDate.now(), LocalDate.now());
+        Product updatedProduct = new Product(1L, "new product", BigDecimal.valueOf(20000), 20L, null);
         Product persistedProduct = productRepository.save(updatedProduct);
         // then
         Assertions.assertEquals(product, persistedProduct);
         Assertions.assertEquals(updatedProduct, persistedProduct);
         Assertions.assertEquals(BigDecimal.valueOf(20000), persistedProduct.getPrice());
         Assertions.assertEquals(20, persistedProduct.getQuantity());
-        Assertions.assertEquals(newPromotion, persistedProduct.getPromotion().get());
+        Assertions.assertEquals(newPromotion, persistedProduct.getPromotion());
     }
 
     @Test

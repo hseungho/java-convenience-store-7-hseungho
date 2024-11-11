@@ -42,8 +42,8 @@ public class PromotionDataSource extends AbstractDataSource<Promotion> {
         String[] columns = this.parseToColumns(Promotion.class, line);
 
         String name = this.getStringOrThrow("name", columns[0]);
-        int buy = this.getIntegerOrThrow("buy", columns[1]);
-        int get = this.getIntegerOrThrow("get", columns[2]);
+        Long buy = this.getLongOrThrow("buy", columns[1]);
+        Long get = this.getLongOrThrow("get", columns[2]);
         LocalDate startDate = this.getLocalDateOrThrow("startDate", columns[3]);
         LocalDate endDate = this.getLocalDateOrThrow("endDate", columns[4]);
 

@@ -1,17 +1,19 @@
 package store.core.controller;
 
 import camp.nextstep.edu.missionutils.DateTimes;
+import java.time.LocalDate;
 import java.util.List;
 import store.core.dto.OrderSheetDto;
 import store.core.dto.OrderSheetDto.OrderSheetItemDto;
 import store.core.dto.ProductDto;
+import store.core.model.Order;
 import store.core.model.Product;
 import store.core.model.ProductWindow;
-import store.core.model.Promotion;
 import store.core.model.repository.ProductRepository;
 import store.core.model.repository.ProductWindowRepository;
 import store.core.view.OrderSheetInputView;
 import store.core.view.ProductListOutputView;
+import store.core.view.YesOrNoInputView;
 
 public class OrderController {
 
@@ -19,16 +21,20 @@ public class OrderController {
 
     private final OrderSheetInputView orderSheetInputView;
 
+    private final YesOrNoInputView yesOrNoInputView;
+
     private final ProductRepository productRepository;
 
     private final ProductWindowRepository productWindowRepository;
 
     public OrderController(ProductListOutputView productListOutputView,
                            OrderSheetInputView orderSheetInputView,
+                           YesOrNoInputView yesOrNoInputView,
                            ProductRepository productRepository,
                            ProductWindowRepository productWindowRepository) {
         this.productListOutputView = productListOutputView;
         this.orderSheetInputView = orderSheetInputView;
+        this.yesOrNoInputView = yesOrNoInputView;
         this.productRepository = productRepository;
         this.productWindowRepository = productWindowRepository;
     }
@@ -40,20 +46,43 @@ public class OrderController {
 
         OrderSheetDto orderSheet = orderSheetInputView.displayWithInput("구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
 
+        LocalDate date = DateTimes.now().toLocalDate();
+        Order order = new Order(date);
+
         for (OrderSheetItemDto orderSheetItem : orderSheet.items()) {
-            ProductWindow productWindow = productWindowRepository.findByName(orderSheetItem.name())
-                    .orElseThrow(IllegalArgumentException::new);
-            Product promotionProduct = productWindow.getPromotionProduct();
-            if (promotionProduct == null || promotionProduct.getPromotion().isEmpty()) {
-                continue;
+            String orderProductName = orderSheetItem.name();
+            Long orderQuantity = orderSheetItem.quantity();
+            ProductWindow productWindow = productWindowRepository.findByName(orderProductName)
+                    .orElseThrow(() -> new IllegalArgumentException("[ERROR] 해당 상품이 존재하지 않습니다: " + orderProductName));
+
+            Long applicablePromotionQuantity = productWindow.getRequiredPromotionQuantityIfApplicable(orderQuantity, order.getOrderDate());
+            if (applicablePromotionQuantity > 0) {
+                boolean isApplicablePromotion = yesOrNoInputView.displayWithInput("현재 " + orderProductName + "은(는) " + applicablePromotionQuantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
+                if (isApplicablePromotion) {
+                    orderQuantity += applicablePromotionQuantity;
+                }
             }
-            Promotion promotion = promotionProduct.getPromotion().get();
-            int promotionApplyQuantity = promotion.getApplicableQuantity(orderSheetItem.quantity(), DateTimes.now().toLocalDate());
-            if (promotionApplyQuantity < 0) {
-                continue;
+
+            Long insufficientQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(orderQuantity, order.getOrderDate());
+            if (insufficientQuantity > 0) {
+                boolean applyPromotion = yesOrNoInputView.displayWithInput("현재 " + orderProductName + " " + insufficientQuantity + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
+                if (!applyPromotion) {
+                    return;
+                }
             }
-            // 현재 {상품명}은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)
-            System.out.println("현재 " + orderSheetItem.name() + "은(는) " + promotionApplyQuantity + "개를 무료로 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
+
+            order.addItem(productWindow, orderQuantity);
+
+            this.productWindowRepository.save(productWindow);
+
+            System.out.println();
+            Long pq = 0L, pmq = 0L;
+            ProductWindow afterProductWindow = this.productWindowRepository.findByName(orderProductName).orElseThrow();
+            if (afterProductWindow.getProduct() != null) pq = afterProductWindow.getProduct().getQuantity();
+            if (afterProductWindow.getPromotionProduct() != null) pmq = afterProductWindow.getPromotionProduct().getQuantity();
+            System.out.println("PQ: " + pq + " PMQ: " + pmq);
         }
+
+        System.out.println(order);
     }
 }

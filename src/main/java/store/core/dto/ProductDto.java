@@ -2,7 +2,6 @@ package store.core.dto;
 
 import java.math.BigDecimal;
 import store.core.model.Product;
-import store.core.model.Promotion;
 
 public record ProductDto(
         String name,
@@ -12,11 +11,15 @@ public record ProductDto(
 ) {
 
     public static ProductDto modelOf(Product product) {
+        String promotionName = "";
+        if (product.getPromotion() != null) {
+            promotionName = product.getPromotion().getName();
+        }
         return new ProductDto(
                 product.getName(),
                 product.getQuantity(),
                 product.getPrice(),
-                product.getPromotion().map(Promotion::getName).orElse("")
+                promotionName
         );
     }
 }

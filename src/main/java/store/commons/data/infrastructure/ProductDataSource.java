@@ -62,7 +62,7 @@ public class ProductDataSource extends AbstractDataSource<Product> {
         Long quantity = this.getLongOrThrow("quantity", columns[2]);
         Optional<Promotion> promotion = promotionRepository.findByName(columns[3]);
 
-        return new Product(name, price, quantity, promotion);
+        return new Product(name, price, quantity, promotion.orElse(null));
     }
 
     private BigDecimal getBigDecimalOrThrow(String property, String value) {

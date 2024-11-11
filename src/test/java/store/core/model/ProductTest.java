@@ -2,7 +2,6 @@ package store.core.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -15,14 +14,31 @@ class ProductTest {
         String name = "product name";
         BigDecimal price = BigDecimal.valueOf(10000);
         Long quantity = 10L;
-        Promotion promotion = new Promotion("promotion", 1, 1, LocalDate.now(), LocalDate.now());
-        Product product = new Product(name, price, quantity, Optional.of(promotion));
+        Promotion promotion = new Promotion("promotion", 1L, 1L, LocalDate.now(), LocalDate.now());
+        Product product = new Product(name, price, quantity, promotion);
         // then
         Assertions.assertNotNull(product);
         Assertions.assertEquals(name, product.getName());
         Assertions.assertEquals(price, product.getPrice());
         Assertions.assertEquals(quantity, product.getQuantity());
-        Assertions.assertEquals(promotion, product.getPromotion().get());
+        Assertions.assertEquals(promotion, product.getPromotion());
+    }
+
+    @Test
+    void getQuantity_given_not_enough_promotion_set_should_be_pass() {
+        // given
+        // when
+        String name = "product name";
+        BigDecimal price = BigDecimal.valueOf(10000);
+        Long quantity = 2L;
+        Promotion promotion = new Promotion("promotion", 2L, 1L, LocalDate.now(), LocalDate.now());
+        Product product = new Product(name, price, quantity, promotion);
+        // then
+        Assertions.assertNotNull(product);
+        Assertions.assertEquals(name, product.getName());
+        Assertions.assertEquals(price, product.getPrice());
+        Assertions.assertEquals(0L, product.getQuantity());
+        Assertions.assertEquals(promotion, product.getPromotion());
     }
 
     @Test
@@ -30,11 +46,11 @@ class ProductTest {
         // given
         BigDecimal price = BigDecimal.valueOf(10000);
         Long quantity = 100L;
-        Promotion promotion = new Promotion("promotion", 1, 1, LocalDate.now(), LocalDate.now());
+        Promotion promotion = new Promotion("promotion", 1L, 1L, LocalDate.now(), LocalDate.now());
         // when
-        Product product1 = new Product(1L, "product", price, quantity, Optional.of(promotion));
-        Product product2 = new Product(1L, "product", price, quantity, Optional.empty());
-        Product product3 = new Product(2L, "other_product", price, quantity, Optional.of(promotion));
+        Product product1 = new Product(1L, "product", price, quantity, promotion);
+        Product product2 = new Product(1L, "product", price, quantity, null);
+        Product product3 = new Product(2L, "other_product", price, quantity, promotion);
         // then
         Assertions.assertEquals(product1, product2);
         Assertions.assertNotEquals(product1, product3);
@@ -46,9 +62,9 @@ class ProductTest {
         // given
         BigDecimal price = BigDecimal.valueOf(10000);
         Long quantity = 100L;
-        Promotion promotion = new Promotion("promotion", 1, 1, LocalDate.now(), LocalDate.now());
-        Product productHasPromotion = new Product("product", price, quantity, Optional.of(promotion));
-        Product productHasNotPromotion = new Product("other_product", price, quantity, Optional.empty());
+        Promotion promotion = new Promotion("promotion", 1L, 1L, LocalDate.now(), LocalDate.now());
+        Product productHasPromotion = new Product("product", price, quantity, promotion);
+        Product productHasNotPromotion = new Product("other_product", price, quantity, null);
         // when
         boolean hasPromotion = productHasPromotion.hasPromotion();
         boolean hasNotPromotion = productHasNotPromotion.hasPromotion();
@@ -62,7 +78,7 @@ class ProductTest {
         // given
         BigDecimal price = BigDecimal.valueOf(10000);
         Long quantity = 10L;
-        Product product = new Product(1L, "product", price, quantity, Optional.empty());
+        Product product = new Product(1L, "product", price, quantity, null);
         // when
         product.decreaseQuantity(10L);
         // then
@@ -74,7 +90,7 @@ class ProductTest {
         // given
         BigDecimal price = BigDecimal.valueOf(10000);
         Long quantity = 10L;
-        Product product = new Product(1L, "product", price, quantity, Optional.empty());
+        Product product = new Product(1L, "product", price, quantity, null);
         // when
         // then
         Assertions.assertThrows(IllegalArgumentException.class, () -> product.decreaseQuantity(11L));

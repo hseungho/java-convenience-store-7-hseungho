@@ -24,7 +24,7 @@ public class ProductRepository extends SimpleRepository<Product, Long> {
     public boolean existsByNameAndPromotionIsNull(String name) {
         for (Entry<Long, Product> entry : this.storage.entrySet()) {
             Product product = entry.getValue();
-            if (product.getName().equals(name) && product.getPromotion().isEmpty()) {
+            if (product.getName().equals(name) && product.getPromotion() == null) {
                 return true;
             }
         }

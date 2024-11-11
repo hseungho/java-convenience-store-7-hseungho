@@ -2,7 +2,6 @@ package store.core.model;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.Optional;
 import store.commons.data.repository.GenerateValue;
 import store.commons.data.repository.Id;
 
@@ -18,9 +17,9 @@ public class Product {
 
     private Long quantity;
 
-    private Optional<Promotion> promotion;
+    private Promotion promotion;
 
-    public Product(Long id, String name, BigDecimal price, Long quantity, Optional<Promotion> promotion) {
+    public Product(Long id, String name, BigDecimal price, Long quantity, Promotion promotion) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -28,7 +27,7 @@ public class Product {
         this.promotion = promotion;
     }
 
-    public Product(String name, BigDecimal price, Long quantity, Optional<Promotion> promotion) {
+    public Product(String name, BigDecimal price, Long quantity, Promotion promotion) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
@@ -39,7 +38,7 @@ public class Product {
         this.name = name;
         this.price = price;
         this.quantity = 0L;
-        this.promotion = Optional.empty();
+        this.promotion = null;
     }
 
     public Long getId() {
@@ -58,20 +57,24 @@ public class Product {
         return this.quantity;
     }
 
-    public Optional<Promotion> getPromotion() {
+    public Promotion getPromotion() {
         return this.promotion;
     }
 
     public boolean hasPromotion() {
-        return this.promotion.isPresent();
+        return this.promotion != null;
     }
 
     public boolean hasNotPromotion() {
-        return !this.hasPromotion();
+        return this.promotion == null;
+    }
+
+    public void increaseQuantity(Long quantity) {
+        this.quantity += quantity;
     }
 
     public void decreaseQuantity(Long orderQuantity) {
-        if (orderQuantity > this.quantity) {
+        if (orderQuantity > this.getQuantity()) {
             throw new IllegalArgumentException("[ERROR] 재고가 부족합니다.");
         }
         this.quantity -= orderQuantity;

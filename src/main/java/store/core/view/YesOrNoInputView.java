@@ -1,6 +1,7 @@
 package store.core.view;
 
 import store.commons.util.Command;
+import store.core.constants.Error.InputError;
 
 public class YesOrNoInputView implements InputView<String, Boolean> {
 
@@ -25,6 +26,6 @@ public class YesOrNoInputView implements InputView<String, Boolean> {
         if (read.equalsIgnoreCase(YES) || read.equalsIgnoreCase(NO)) {
             return;
         }
-        throw new IllegalArgumentException("잘못된 입력입니다. 다시 입력해 주세요.");
+        throw new IllegalArgumentException(InputError.INVALID_INPUT);
     }
 }

@@ -1,12 +1,10 @@
 package store.core.view;
 
-import java.text.DecimalFormat;
 import java.util.List;
+import store.core.constants.Numbers;
 import store.core.dto.ProductDto;
 
 public class ProductListOutputView implements OutputView<List<ProductDto>> {
-
-    private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
     @Override
     public void display(List<ProductDto> content) {
@@ -27,7 +25,7 @@ public class ProductListOutputView implements OutputView<List<ProductDto>> {
         for (ProductDto product : content) {
             builder.append("- ");
             builder.append(product.name() + " ");
-            builder.append(decimalFormat.format(product.price()) + "원 ");
+            builder.append(Numbers.formatDecimal(product.price()) + "원 ");
             buildQuantity(builder, product.quantity());
             builder.append(product.promotionName() + "\n");
         }

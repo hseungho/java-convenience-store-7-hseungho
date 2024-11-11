@@ -43,7 +43,7 @@ public class ReceiptOutputView implements OutputView<ReceiptDto> {
         builder.append(String.format("%-12s %21s%n", "행사할인", "-" + decimalFormat.format(payment.promotionDiscountAmount())));
         builder.append(String.format("%-12s %21s%n", "멤버십할인", "-" + decimalFormat.format(payment.membershipDiscountAmount())));
         builder.append(String.format("%-12s %21s%n", "내실돈", decimalFormat.format(payment.paidAmount())));
-        builder.append("====================================\n\n");
+        builder.append("====================================\n");
         System.out.print(builder);
     }
 }

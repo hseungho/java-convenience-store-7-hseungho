@@ -18,4 +18,18 @@ public class Runner {
             return null;
         }
     }
+
+    public static boolean runMain(Supplier<Boolean> supplier) {
+        try {
+            return supplier.get();
+        } catch (ProgramExitException e) {
+            throw e;
+        } catch (IllegalArgumentException e) {
+            Logger.error(e.getMessage());
+            return true;
+        } catch (Throwable t) {
+            Logger.error(t.getMessage());
+            return false;
+        }
+    }
 }

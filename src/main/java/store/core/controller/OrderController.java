@@ -55,8 +55,8 @@ public class OrderController {
     public void run() {
         boolean isRestart;
         do {
-            Object result = Runner.run(this::process);
-            isRestart = result == null || !((boolean) result);
+            boolean result = Runner.runMain(this::process);
+            isRestart = !result;
         } while (!isRestart);
     }
 

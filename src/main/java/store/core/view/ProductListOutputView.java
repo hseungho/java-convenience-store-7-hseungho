@@ -16,7 +16,7 @@ public class ProductListOutputView implements OutputView<List<ProductDto>> {
 
     private void displayIndex() {
         String index = """
-                안녕하세요. W편의점입니다.
+                \n안녕하세요. W편의점입니다.
                 현재 보유하고 있는 상품입니다.
                 """;
         System.out.println(index);

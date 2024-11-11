@@ -50,6 +50,7 @@ public class ProductWindow {
             Long promotionSets = promotion.getPromotionSets();
             Long availableSets = this.promotionProduct.getQuantity() / promotionSets;
             Long availableQuantity = promotionSets * availableSets;
+            if (availableQuantity == 0) return 0L;
             return orderQuantity - availableQuantity;
         }
         return 0L;

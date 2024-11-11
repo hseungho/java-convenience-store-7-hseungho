@@ -56,7 +56,7 @@ public class OrderController {
         boolean isRestart;
         do {
             Object result = Runner.run(this::process);
-            isRestart = result != null && (boolean) result;
+            isRestart = result == null || !((boolean) result);
         } while (!isRestart);
     }
 
@@ -94,7 +94,7 @@ public class OrderController {
         this.productListOutputView.display(productDtos);
 
         String content = "구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])";
-        return orderSheetInputView.displayWithInput(content);
+        return Retry.retry(5, () -> orderSheetInputView.displayWithInput(content));
     }
 
     private Long getApplicablePromotionQuantityIfApplicable(ProductWindow productWindow, Long orderQuantity, Order order, String orderProductName) {
@@ -141,8 +141,9 @@ public class OrderController {
     }
 
     private Boolean choiceRestartOrder() {
-        String content = "감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)";
-        boolean isRestartOrder = yesOrNoInputView.displayWithInput(content);
-        return !isRestartOrder;
+        return Retry.retry(5, () -> {
+            String content = "감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)";
+            return yesOrNoInputView.displayWithInput(content);
+        });
     }
 }

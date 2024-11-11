@@ -1,7 +1,6 @@
 package store;
 
 import store.commons.beans.BeanFactory;
-import store.commons.data.infrastructure.DataSourceInitializer;
 import store.commons.lang.InputOverFlowException;
 import store.commons.lang.ProgramExitException;
 import store.commons.logger.Logger;
@@ -10,8 +9,6 @@ import store.core.controller.OrderController;
 public class Application {
     public static void main(String[] args) {
         Application.run(() -> {
-            DataSourceInitializer.getInstance().initialize();
-
             OrderController orderController = BeanFactory.getBean(OrderController.class);
             orderController.run();
         });

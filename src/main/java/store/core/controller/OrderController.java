@@ -4,6 +4,7 @@ import camp.nextstep.edu.missionutils.DateTimes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import store.commons.data.infrastructure.DataSourceInitializer;
 import store.commons.util.Retry;
 import store.commons.util.Runner;
 import store.core.dto.OrderSheetDto;
@@ -41,6 +42,8 @@ public class OrderController {
                            ReceiptOutputView receiptOutputView,
                            ProductRepository productRepository,
                            ProductWindowRepository productWindowRepository) {
+        DataSourceInitializer.getInstance().initialize();
+
         this.productListOutputView = productListOutputView;
         this.orderSheetInputView = orderSheetInputView;
         this.yesOrNoInputView = yesOrNoInputView;

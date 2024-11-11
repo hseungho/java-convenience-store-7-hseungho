@@ -11,8 +11,15 @@ public class Command {
 
     public static String read() {
         String read = Console.readLine();
+        validateRead(read);
         handleCommands(read);
         return read;
+    }
+
+    private static void validateRead(String read) {
+        if (read == null || read.isBlank()) {
+            throw new IllegalArgumentException("잘못된 입력입니다. 다시 입력해 주세요.");
+        }
     }
 
     private static void handleCommands(String read) {

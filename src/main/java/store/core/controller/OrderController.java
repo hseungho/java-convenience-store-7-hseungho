@@ -60,29 +60,28 @@ public class OrderController {
                 displayReceipt(order);
                 return choiceRestartOrder();
             });
-            isRestart = result != null;
+            isRestart = result != null && (boolean) result;
         } while (!isRestart);
     }
 
     private boolean processOrder(OrderSheetDto orderSheet, Order order) {
         List<ProductWindow> updatedProductWindows = new ArrayList<>();
-        if (addOrderItems(orderSheet, order, updatedProductWindows)) return true;
+        addOrderItems(orderSheet, order, updatedProductWindows);
         choiceApplyMembershipDiscount(order);
         this.productWindowRepository.saveAll(updatedProductWindows);
         return false;
     }
 
-    private boolean addOrderItems(OrderSheetDto orderSheet, Order order, List<ProductWindow> updatedProductWindows) {
+    private void addOrderItems(OrderSheetDto orderSheet, Order order, List<ProductWindow> updatedProductWindows) {
         for (OrderSheetItemDto orderSheetItem : orderSheet.items()) {
             String orderProductName = orderSheetItem.name();
             Long orderQuantity = orderSheetItem.quantity();
-            ProductWindow productWindow = productWindowRepository.findByName(orderProductName).orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
+            ProductWindow productWindow = productWindowRepository.findByName(orderProductName).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. 다시 입력해 주세요."));
             orderQuantity = getApplicablePromotionQuantityIfApplicable(productWindow, orderQuantity, order, orderProductName);
-            if (checkInsufficientPromotionQuantityIfExceed(productWindow, orderQuantity, order, orderProductName)) return true;
+            orderQuantity = checkInsufficientPromotionQuantityIfExceed(productWindow, orderQuantity, order, orderProductName);
             order.addItem(productWindow, orderQuantity);
             updatedProductWindows.add(productWindow);
         }
-        return false;
     }
 
     private OrderSheetDto displayProductListAndInputOrderSheet() {
@@ -110,17 +109,17 @@ public class OrderController {
         return orderQuantity;
     }
 
-    private boolean checkInsufficientPromotionQuantityIfExceed(ProductWindow productWindow, Long orderQuantity, Order order, String orderProductName) {
-        boolean result = false;
+    private Long checkInsufficientPromotionQuantityIfExceed(ProductWindow productWindow, Long orderQuantity, Order order, String orderProductName) {
+        Long changedQuantity = orderQuantity;
         Long insufficientQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(orderQuantity, order.getOrderDate());
         if (insufficientQuantity > 0) {
-            result = Retry.retry(5, () -> {
+            boolean result = Retry.retry(5, () -> {
                 String content = "현재 " + orderProductName + " " + insufficientQuantity + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)";
-                boolean applyPromotion = yesOrNoInputView.displayWithInput(content);
-                return !applyPromotion;
+                return yesOrNoInputView.displayWithInput(content);
             });
+            if (!result) { changedQuantity -= insufficientQuantity; }
         }
-        return result;
+        return changedQuantity;
     }
 
     private void choiceApplyMembershipDiscount(Order order) {

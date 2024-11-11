@@ -35,10 +35,10 @@ public class OrderSheetInputView implements InputView<String, OrderSheetDto> {
 
     private String mapToEachItem(String inputEachItem) {
         if (inputEachItem == null || inputEachItem.isBlank()) {
-            throw new IllegalArgumentException("Required items");
+            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
         if (!inputEachItem.startsWith("[") || !inputEachItem.endsWith("]")) {
-            throw new IllegalArgumentException("Invalid items");
+            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
         return inputEachItem.substring(1, inputEachItem.length() - 1);
     }
@@ -53,25 +53,25 @@ public class OrderSheetInputView implements InputView<String, OrderSheetDto> {
 
     private void validateItemStrArray(String[] itemStrArray) {
         if (itemStrArray.length != 2) {
-            throw new IllegalArgumentException("Invalid item array");
+            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
     }
 
     private String mapToItemName(String itemName) {
         if (itemName == null || itemName.isBlank()) {
-            throw new IllegalArgumentException("Required item name");
+            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
         return itemName;
     }
 
     private Long mapToItemQuantity(String itemQuantity) {
         if (itemQuantity == null || itemQuantity.isBlank()) {
-            throw new IllegalArgumentException("Required item quantity");
+            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
         try {
             return Long.parseLong(itemQuantity);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid item quantity");
+            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
     }
 }

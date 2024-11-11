@@ -25,6 +25,6 @@ public class YesOrNoInputView implements InputView<String, Boolean> {
         if (read.equalsIgnoreCase(YES) || read.equalsIgnoreCase(NO)) {
             return;
         }
-        throw new IllegalArgumentException("Invalid yes or no.");
+        throw new IllegalArgumentException("잘못된 입력입니다. 다시 입력해 주세요.");
     }
 }

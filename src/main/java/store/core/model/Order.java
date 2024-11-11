@@ -49,7 +49,7 @@ public class Order {
         Product promotionProduct = productWindow.getPromotionProduct();
         Long defaultProductQuantityIfRequired = quantity;
         boolean isPromotion = false;
-        if (promotionProduct != null) {
+        if (promotionProduct != null && promotionProduct.getQuantity() > 0) {
             Long targetPromotionQuantity = quantity;
             Long insufficientPromotionQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(quantity, this.orderDate);
             if (insufficientPromotionQuantity > 0) {

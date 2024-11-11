@@ -2,6 +2,7 @@ package store.core.controller;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import store.core.dto.OrderSheetDto;
 import store.core.dto.OrderSheetDto.OrderSheetItemDto;
@@ -49,6 +50,7 @@ public class OrderController {
         LocalDate date = DateTimes.now().toLocalDate();
         Order order = new Order(date);
 
+        List<ProductWindow> updatedProductWindows = new ArrayList<>();
         for (OrderSheetItemDto orderSheetItem : orderSheet.items()) {
             String orderProductName = orderSheetItem.name();
             Long orderQuantity = orderSheetItem.quantity();
@@ -73,16 +75,22 @@ public class OrderController {
 
             order.addItem(productWindow, orderQuantity);
 
-            this.productWindowRepository.save(productWindow);
 
-            System.out.println();
-            Long pq = 0L, pmq = 0L;
-            ProductWindow afterProductWindow = this.productWindowRepository.findByName(orderProductName).orElseThrow();
-            if (afterProductWindow.getProduct() != null) pq = afterProductWindow.getProduct().getQuantity();
-            if (afterProductWindow.getPromotionProduct() != null) pmq = afterProductWindow.getPromotionProduct().getQuantity();
-            System.out.println("PQ: " + pq + " PMQ: " + pmq);
+            updatedProductWindows.add(productWindow);
         }
 
+        boolean isApplyMembershipDiscount = yesOrNoInputView.displayWithInput("멤버십 할인을 받으시겠습니까? (Y/N)");
+        if (isApplyMembershipDiscount) {
+            order.applyMembership();
+        }
+
+        this.productWindowRepository.saveAll(updatedProductWindows);
+
+        System.out.println();
         System.out.println(order);
+        System.out.println(order.getPayment());
+
+        List<ProductDto> afters = this.productRepository.findAll().stream().map(ProductDto::modelOf).toList();
+        productListOutputView.display(afters);
     }
 }

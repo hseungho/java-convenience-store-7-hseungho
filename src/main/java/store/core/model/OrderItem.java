@@ -6,9 +6,12 @@ public class OrderItem {
 
     private final Long quantity;
 
-    public OrderItem(Product product, Long quantity) {
+    private final boolean isPromotion;
+
+    public OrderItem(Product product, Long quantity, boolean isPromotion) {
         this.product = product;
         this.quantity = quantity;
+        this.isPromotion = isPromotion;
     }
 
     public Product getProduct() {
@@ -19,11 +22,16 @@ public class OrderItem {
         return this.quantity;
     }
 
+    public boolean isPromotion() {
+        return this.isPromotion;
+    }
+
     @Override
     public String toString() {
         return "OrderItem{" +
                 "product=" + product.getName() +
                 ", quantity=" + quantity +
+                ", isPromotion=" + isPromotion +
                 '}';
     }
 }

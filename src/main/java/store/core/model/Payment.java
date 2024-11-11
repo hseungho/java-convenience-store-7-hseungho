@@ -1,6 +1,7 @@
 package store.core.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Payment {
 
@@ -14,6 +15,24 @@ public class Payment {
         this.totalAmount = totalAmount;
         this.promotionDiscountAmount = promotionDiscountAmount;
         this.membershipDiscountAmount = membershipDiscountAmount;
+    }
+
+    public Payment(Order order) {
+        this.totalAmount = order.getItems().stream()
+                .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.promotionDiscountAmount = order.getPromotionItems().stream()
+                .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal promotionDiscountAmount = order.getItems().stream()
+                .filter(OrderItem::isPromotion)
+                .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.membershipDiscountAmount = totalAmount
+                .subtract(promotionDiscountAmount)
+                .multiply(BigDecimal.valueOf(0.3))
+                .setScale(0, RoundingMode.DOWN)
+                .min(BigDecimal.valueOf(8000));
     }
 
     public BigDecimal getTotalAmount() {
@@ -37,9 +56,10 @@ public class Payment {
     @Override
     public String toString() {
         return "Payment{" +
-                "totalAmount=" + totalAmount +
-                ", promotionDiscountAmount=" + promotionDiscountAmount +
-                ", membershipDiscountAmount=" + membershipDiscountAmount +
+                "totalAmount=" + getTotalAmount() +
+                ", promotionDiscountAmount=" + getPromotionDiscountAmount() +
+                ", membershipDiscountAmount=" + getMembershipDiscountAmount() +
+                ", paidAmount=" + geyPaidAmount() +
                 '}';
     }
 }

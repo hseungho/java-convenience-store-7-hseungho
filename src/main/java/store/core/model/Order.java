@@ -29,11 +29,18 @@ public class Order {
         return this.items;
     }
 
+    public List<OrderItem> getPromotionItems() {
+        return this.promotionItems;
+    }
+
     public LocalDate getOrderDate() {
         return this.orderDate;
     }
 
     public Payment getPayment() {
+        if (this.payment == null) {
+            this.payment = new Payment(this);
+        }
         return this.payment;
     }
 
@@ -44,6 +51,7 @@ public class Order {
     public void addItem(ProductWindow productWindow, Long quantity) {
         Product promotionProduct = productWindow.getPromotionProduct();
         Long defaultProductQuantityIfRequired = quantity;
+        boolean isPromotion = false;
         if (promotionProduct != null) {
             Long targetPromotionQuantity = quantity;
             Long insufficientPromotionQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(quantity, this.orderDate);
@@ -56,15 +64,20 @@ public class Order {
             Long decreaseQuantity = availablePromotionQuantity * promotion.getPromotionSets();
             if (availablePromotionQuantity > 0) {
                 promotionProduct.decreaseQuantity(decreaseQuantity);
-                this.promotionItems.add(new OrderItem(promotionProduct, availablePromotionQuantity));
+                this.promotionItems.add(new OrderItem(promotionProduct, availablePromotionQuantity, true));
             }
+            isPromotion = true;
             defaultProductQuantityIfRequired -= decreaseQuantity;
         }
         Product product = productWindow.getProduct();
         if (defaultProductQuantityIfRequired > 0 && product != null) {
             product.decreaseQuantity(defaultProductQuantityIfRequired);
         }
-        this.items.add(new OrderItem(product, quantity));
+        this.items.add(new OrderItem(product, quantity, isPromotion));
+    }
+
+    public void applyMembership() {
+        this.isApplyMembership = true;
     }
 
     @Override

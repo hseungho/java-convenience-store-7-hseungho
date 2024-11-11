@@ -1,5 +1,6 @@
 package store.core.view;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
 import store.core.dto.ReceiptDto;
@@ -23,10 +24,11 @@ public class ReceiptOutputView implements OutputView<ReceiptDto> {
         builder.append(String.format("%-12s %6s %15s%n", "상품명", "수량", "금액"));
 
         for (ReceiptPurchaseItemDto purchaseItem : purchaseItems) {
+            BigDecimal price = purchaseItem.price().multiply(BigDecimal.valueOf(purchaseItem.quantity()));
             builder.append(String.format("%-12s %6d %15s%n",
                     purchaseItem.name(),
                     purchaseItem.quantity(),
-                    decimalFormat.format(purchaseItem.price())));
+                    decimalFormat.format(price)));
         }
         System.out.print(builder);
     }

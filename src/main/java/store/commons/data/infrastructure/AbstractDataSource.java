@@ -63,17 +63,6 @@ public abstract class AbstractDataSource<T> {
         return value;
     }
 
-    protected Integer getIntegerOrThrow(String property, String value) {
-        if (value == null) {
-            throw new DataLoaderException(property + "에 해당하는 값이 존재하지 않습니다.");
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new DataLoaderException(property + "에 해당하는 값이 숫자가 아닙니다.");
-        }
-    }
-
     protected Long getLongOrThrow(String property, String value) {
         if (value == null) {
             throw new DataLoaderException(property + "에 해당하는 값이 존재하지 않습니다.");

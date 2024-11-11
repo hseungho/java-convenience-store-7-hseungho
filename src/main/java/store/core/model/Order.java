@@ -46,31 +46,43 @@ public class Order {
     }
 
     public void addItem(ProductWindow productWindow, Long quantity) {
-        Product promotionProduct = productWindow.getPromotionProduct();
         Long defaultProductQuantityIfRequired = quantity;
         boolean isPromotion = false;
-        if (promotionProduct != null && promotionProduct.getQuantity() > 0) {
-            Long targetPromotionQuantity = quantity;
-            Long insufficientPromotionQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(quantity, this.orderDate);
-            if (insufficientPromotionQuantity > 0) {
-                targetPromotionQuantity -= insufficientPromotionQuantity;
-            }
-
-            Long availablePromotionQuantity = productWindow.getAvailablePromotionQuantity(targetPromotionQuantity, this.orderDate);
-            Promotion promotion = promotionProduct.getPromotion();
-            Long decreaseQuantity = availablePromotionQuantity * promotion.getPromotionSets();
-            if (availablePromotionQuantity > 0) {
-                promotionProduct.decreaseQuantity(decreaseQuantity);
-                this.promotionItems.add(new OrderItem(promotionProduct, availablePromotionQuantity, true));
-            }
-            isPromotion = true;
+        if ( productWindow.getPromotionProduct() != null &&  productWindow.getPromotionProduct().getQuantity() > 0) {
+            Long targetPromotionQuantity = getTargetPromotionQuantity(productWindow, defaultProductQuantityIfRequired);
+            Long decreaseQuantity = addPromotionItem(productWindow, targetPromotionQuantity,  productWindow.getPromotionProduct());
             defaultProductQuantityIfRequired -= decreaseQuantity;
+            isPromotion = true;
         }
+        this.items.add(new OrderItem(decreaseProductQuantityIfRequired(productWindow, defaultProductQuantityIfRequired), quantity, isPromotion));
+    }
+
+    private Long getTargetPromotionQuantity(ProductWindow productWindow, Long quantity) {
+        Long targetPromotionQuantity = quantity;
+        Long insufficientPromotionQuantity = productWindow.getInsufficientPromotionQuantityIfExceed(quantity, this.orderDate);
+        if (insufficientPromotionQuantity > 0) {
+            targetPromotionQuantity -= insufficientPromotionQuantity;
+        }
+        return targetPromotionQuantity;
+    }
+
+    private Long addPromotionItem(ProductWindow productWindow, Long targetPromotionQuantity, Product promotionProduct) {
+        Long availablePromotionQuantity = productWindow.getAvailablePromotionQuantity(targetPromotionQuantity, this.orderDate);
+        Promotion promotion = promotionProduct.getPromotion();
+        Long decreaseQuantity = availablePromotionQuantity * promotion.getPromotionSets();
+        if (availablePromotionQuantity > 0) {
+            promotionProduct.decreaseQuantity(decreaseQuantity);
+            this.promotionItems.add(new OrderItem(promotionProduct, availablePromotionQuantity, true));
+        }
+        return decreaseQuantity;
+    }
+
+    private Product decreaseProductQuantityIfRequired(ProductWindow productWindow, Long defaultProductQuantityIfRequired) {
         Product product = productWindow.getProduct();
         if (defaultProductQuantityIfRequired > 0 && product != null) {
             product.decreaseQuantity(defaultProductQuantityIfRequired);
         }
-        this.items.add(new OrderItem(product, quantity, isPromotion));
+        return product;
     }
 
     public void applyMembership() {

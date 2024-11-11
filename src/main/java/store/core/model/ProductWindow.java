@@ -52,10 +52,7 @@ public class ProductWindow {
     }
 
     public Long getInsufficientPromotionQuantityIfExceed(Long orderQuantity, LocalDate orderDate) {
-        if (this.promotionProduct != null &&
-                this.promotionProduct.hasPromotion() &&
-                this.promotionProduct.getPromotion().isActiveAt(orderDate) &&
-                this.promotionProduct.getQuantity() < orderQuantity) {
+        if (this.promotionProduct != null && this.promotionProduct.hasPromotion() && this.promotionProduct.getPromotion().isActiveAt(orderDate) && this.promotionProduct.getQuantity() < orderQuantity) {
             Promotion promotion = this.promotionProduct.getPromotion();
             Long promotionSets = promotion.getPromotionSets();
             Long availableSets = this.promotionProduct.getQuantity() / promotionSets;

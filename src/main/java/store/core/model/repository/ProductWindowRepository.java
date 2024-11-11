@@ -22,15 +22,19 @@ public class ProductWindowRepository extends SimpleRepository<ProductWindow, Str
 
     @Override
     public ProductWindow save(ProductWindow entity) {
-        ProductRepository productRepository = ProductRepository.getInstance();
         Product product = entity.getProduct();
         Product promotionProduct = entity.getPromotionProduct();
         if (product == null || promotionProduct == null) {
             return super.save(entity);
         }
-        if (product.getId() != null &&
-                promotionProduct.getId() != null &&
-                !entity.isNew() &&
+        migratePromotionQuantityToProductQuantityIfRequired(product, promotionProduct, entity);
+        entity.setIsNew(false);
+        return super.save(entity);
+    }
+
+    private void migratePromotionQuantityToProductQuantityIfRequired(Product product, Product promotionProduct, ProductWindow entity) {
+        ProductRepository productRepository = ProductRepository.getInstance();
+        if (product.getId() != null && promotionProduct.getId() != null && !entity.isNew() &&
                 promotionProduct.getQuantity() < promotionProduct.getPromotion().getPromotionSets()) {
             Long promotionQuantity = promotionProduct.getQuantity();
             product.increaseQuantity(promotionQuantity);
@@ -38,8 +42,6 @@ public class ProductWindowRepository extends SimpleRepository<ProductWindow, Str
             productRepository.save(product);
             productRepository.save(promotionProduct);
         }
-        entity.setIsNew(false);
-        return super.save(entity);
     }
 
     public Optional<ProductWindow> findByName(String id) {

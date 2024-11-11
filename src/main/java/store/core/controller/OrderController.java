@@ -55,16 +55,17 @@ public class OrderController {
     public void run() {
         boolean isRestart;
         do {
-            Object result;
-            result = Runner.run(() -> {
-                OrderSheetDto orderSheet = displayProductListAndInputOrderSheet();
-                Order order = new Order(DateTimes.now().toLocalDate());
-                if (processOrder(orderSheet, order)) return true;
-                displayReceipt(order);
-                return choiceRestartOrder();
-            });
+            Object result = Runner.run(this::process);
             isRestart = result != null && (boolean) result;
         } while (!isRestart);
+    }
+
+    private Boolean process() {
+        OrderSheetDto orderSheet = displayProductListAndInputOrderSheet();
+        Order order = new Order(DateTimes.now().toLocalDate());
+        if (processOrder(orderSheet, order)) return true;
+        displayReceipt(order);
+        return choiceRestartOrder();
     }
 
     private boolean processOrder(OrderSheetDto orderSheet, Order order) {
@@ -101,11 +102,8 @@ public class OrderController {
         Long applicablePromotionQuantity = productWindow.getRequiredPromotionQuantityIfApplicable(orderQuantity, order.getOrderDate());
         if (applicablePromotionQuantity > 0) {
             orderQuantity = Retry.retry(5, () -> {
-                String content = "현재 " + orderProductName + "은(는) " + applicablePromotionQuantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)";
-                boolean isApplicablePromotion = yesOrNoInputView.displayWithInput(content);
-                if (isApplicablePromotion) {
-                    atomicOrderQuantity.addAndGet(applicablePromotionQuantity);
-                }
+                boolean isApplicablePromotion = yesOrNoInputView.displayWithInput("현재 " + orderProductName + "은(는) " + applicablePromotionQuantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
+                if (isApplicablePromotion) atomicOrderQuantity.addAndGet(applicablePromotionQuantity);
                 return atomicOrderQuantity.get();
             });
         }

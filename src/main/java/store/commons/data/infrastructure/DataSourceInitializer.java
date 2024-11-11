@@ -24,11 +24,8 @@ public class DataSourceInitializer {
 
         PromotionDataSource promotionDataSource = new PromotionDataSource(promotionRepository);
         promotionDataSource.initialize();
-        ProductDataSource productDataSource = new ProductDataSource(
-                productRepository,
-                promotionRepository,
-                productWindowRepository
-        );
+
+        ProductDataSource productDataSource = new ProductDataSource(productRepository, promotionRepository, productWindowRepository);
         productDataSource.initialize();
     }
 }

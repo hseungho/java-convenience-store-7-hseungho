@@ -20,25 +20,40 @@ public class Payment {
     }
 
     public Payment(Order order) {
-        this.totalAmount = order.getItems().stream()
+        this.totalAmount = calcTotalAmount(order);
+        this.promotionDiscountAmount = calcPromotionDiscountAmount(order);
+        this.membershipDiscountAmount = calcMembershipDiscountAmount(order, totalAmount);
+    }
+
+    private static BigDecimal calcTotalAmount(Order order) {
+        return order.getItems().stream()
                 .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.promotionDiscountAmount = order.getPromotionItems().stream()
+    }
+
+    private static BigDecimal calcPromotionDiscountAmount(Order order) {
+        return order.getPromotionItems().stream()
                 .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal promotionDiscountAmount = order.getItems().stream()
-                .filter(OrderItem::isPromotion)
-                .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private static BigDecimal calcMembershipDiscountAmount(Order order, BigDecimal totalAmount) {
         BigDecimal membershipDiscountAmount = BigDecimal.ZERO;
         if (order.isApplyMembership()) {
             membershipDiscountAmount = totalAmount
-                .subtract(promotionDiscountAmount)
-                .multiply(BigDecimal.valueOf(0.3))
-                .setScale(0, RoundingMode.DOWN)
-                .min(BigDecimal.valueOf(8000));
+                    .subtract(calcPromotionAmount(order))
+                    .multiply(BigDecimal.valueOf(0.3))
+                    .setScale(0, RoundingMode.DOWN)
+                    .min(BigDecimal.valueOf(8000));
         }
-        this.membershipDiscountAmount = membershipDiscountAmount;
+        return membershipDiscountAmount;
+    }
+
+    private static BigDecimal calcPromotionAmount(Order order) {
+        return order.getItems().stream()
+                .filter(OrderItem::isPromotion)
+                .map(it -> it.getProduct().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public BigDecimal getTotalAmount() {
